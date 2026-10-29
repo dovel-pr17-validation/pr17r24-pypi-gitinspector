@@ -1,0 +1,230 @@
+# coding: utf-8
+#
+# Copyright © 2012-2026 Ejwa Hosting AB. All rights reserved.
+#
+# This file is part of gitinspector.
+#
+# gitinspector is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# gitinspector is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with gitinspector. If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function
+from __future__ import unicode_literals
+import datetime
+import re
+import subprocess
+import threading
+from .localization import N_
+from .changes import FileDiff
+from .metrics import MetricsLogic
+from . import comment, extensions, filtering, format, git, interval, terminal, workers
+
+class BlameEntry(object):
+	lines = 0
+	skew_w = 0 # Used when calculating average code age.
+	skew_m = 0 # Used when calculating average code age.
+	comments = 0
+	complexity = 0
+	useweeks = None
+
+	def __init__(self, useweeks):
+		self.useweeks = useweeks
+
+	def get_skew(self, forcemonths=False):
+		if not self.useweeks or forcemonths:
+			return self.skew_m
+		return self.skew_w
+
+	def get_complexity(self):
+		return Blame.get_complexity(self.complexity, self.lines, self.comments)
+
+__blame_lock__ = threading.Lock()
+
+AVG_DAYS_PER_MONTH = 30.4167
+
+class BlameThread(workers.Worker):
+	def __init__(self, useweeks, changes, blame_command, extension, blames, filename):
+		workers.Worker.__init__(self)
+
+		self.useweeks = useweeks
+		self.changes = changes
+		self.blame_command = blame_command
+		self.extension = extension
+		self.blames = blames
+		self.filename = filename
+
+		self.is_inside_comment = False
+		self.author_blames = {}
+		self.revision_authors = {}
+		self.open_structures = []
+
+	def __clear_blamechunk_info__(self):
+		self.blamechunk_email = None
+		self.blamechunk_is_last = False
+		self.blamechunk_is_prior = False
+		self.blamechunk_revision = None
+		self.blamechunk_time = None
+
+	def __unfiltered_author_of_blamechunk__(self):
+		try:
+			author = self.changes.get_latest_author_by_email(self.blamechunk_email)
+		except KeyError:
+			return None
+
+		if filtering.set_filtered(author, "author") or filtering.set_filtered(self.blamechunk_email, "email") or \
+		   filtering.set_filtered(self.blamechunk_revision, "revision"):
+			return None
+
+		return author
+
+	#Every line of a revision shares its author and its fate in the filters, so they are only looked up once.
+	def __author_of_blamechunk__(self):
+		revision = (self.blamechunk_email, self.blamechunk_revision)
+
+		if revision not in self.revision_authors:
+			self.revision_authors[revision] = self.__unfiltered_author_of_blamechunk__()
+
+		return self.revision_authors[revision]
+
+	def __handle_blamechunk_content__(self, content):
+		stripped = content.strip()
+		(comments, self.is_inside_comment) = comment.handle_comment_block(self.is_inside_comment, self.extension, stripped)
+		complexity = 0
+
+		if not self.is_inside_comment and not comment.is_comment(self.extension, stripped):
+			complexity = MetricsLogic.get_line_cognitive_complexity(self.open_structures, self.extension, content)
+
+		if self.blamechunk_is_prior and interval.get_since():
+			return
+
+		author = self.__author_of_blamechunk__()
+
+		if author is not None:
+			if author not in self.author_blames:
+				self.author_blames[author] = BlameEntry(self.useweeks)
+
+			entry = self.author_blames[author]
+			entry.comments += comments
+			entry.complexity += complexity
+			entry.lines += 1
+
+			if (self.blamechunk_time - self.changes.first_commit_date).days > 0:
+				skew = (self.changes.last_commit_date - self.blamechunk_time).days
+				entry.skew_w += (skew / 7.0)
+				entry.skew_m += (skew / AVG_DAYS_PER_MONTH)
+
+	def work(self):
+		lines = workers.lines_of(self.blame_command)
+		self.__clear_blamechunk_info__()
+
+		#pylint: disable=W0201
+		for j in range(0, len(lines)):
+			if self.blamechunk_is_last:
+				self.__handle_blamechunk_content__(git.decode(lines[j]).rstrip("\r\n")[1:])
+				self.__clear_blamechunk_info__()
+				continue
+
+			line = git.decode(lines[j]).strip()
+			keyval = line.split(" ", 2)
+
+			if keyval[0] == "boundary":
+				self.blamechunk_is_prior = True
+			elif keyval[0] == "author-mail":
+				self.blamechunk_email = keyval[1].lstrip("<").rstrip(">")
+			elif keyval[0] == "author-time":
+				self.blamechunk_time = datetime.date.fromtimestamp(int(keyval[1]))
+			elif keyval[0] == "filename":
+				self.blamechunk_is_last = True
+			elif Blame.is_revision(keyval[0]):
+				self.blamechunk_revision = keyval[0]
+
+		with __blame_lock__:
+			for (author, entry) in self.author_blames.items():
+				self.blames[(author, self.filename)] = entry
+
+PROGRESS_TEXT = N_("Checking how many lines belong to each author (2 of 2): {0:.0f}%")
+
+class Blame(object):
+	def __init__(self, repo, hard, useweeks, changes):
+		self.blames = {}
+		self.useweeks = useweeks
+		ls_tree_p = subprocess.Popen(["git", "ls-tree", "--name-only", "-r", "-z", interval.get_ref()],
+		                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		lines = [entry for entry in ls_tree_p.communicate()[0].split(b"\0") if entry]
+
+		if ls_tree_p.returncode == 0:
+			progress_text = _(PROGRESS_TEXT)
+
+			if repo != None:
+				progress_text = "[%s] " % repo.name + progress_text
+
+			for i, line in enumerate(lines):
+				line = git.decode(line)
+
+				if extensions.is_located(FileDiff.get_extension(line)) and \
+				   FileDiff.is_valid_extension(line) and not filtering.set_filtered(FileDiff.get_filename(line)):
+					blame_command = filter(None, ["git", "blame", "--line-porcelain", "--root", "-w"] + \
+							(["-C", "-C", "-M"] if hard else []) +
+					                interval.get_blame_arguments() + ["--", line])
+					BlameThread(useweeks, changes, blame_command, FileDiff.get_extension(line), self.blames, line).start()
+
+					if format.is_interactive_format():
+						terminal.output_progress(progress_text, i, len(lines))
+
+			workers.join()
+
+	def __iadd__(self, other):
+		try:
+			self.blames.update(other.blames)
+			return self
+		except AttributeError:
+			return other
+
+	@staticmethod
+	def is_revision(string):
+		revision = re.search("([0-9a-f]{40})", string)
+
+		if revision == None:
+			return False
+
+		return revision.group(1).strip()
+
+	@staticmethod
+	def get_stability(author, blamed_lines, changes):
+		if author in changes.get_authorinfo_list():
+			author_insertions = changes.get_authorinfo_list()[author].insertions
+			return 100 if author_insertions == 0 else 100.0 * blamed_lines / author_insertions
+		return 100
+
+	@staticmethod
+	def get_time(string):
+		time = re.search(r" \(.*?(\d\d\d\d-\d\d-\d\d)", string)
+		return time.group(1).strip()
+
+	@staticmethod
+	def get_complexity(complexity, lines, comments):
+		eloc = lines - comments
+		return 0.0 if eloc <= 0 else float(complexity) / eloc
+
+	def get_summed_blames(self):
+		summed_blames = {}
+		for i in self.blames.items():
+			if summed_blames.get(i[0][0], None) == None:
+				summed_blames[i[0][0]] = BlameEntry(self.useweeks)
+
+			summed_blames[i[0][0]].lines += i[1].lines
+			summed_blames[i[0][0]].skew_w += i[1].skew_w
+			summed_blames[i[0][0]].skew_m += i[1].skew_m
+			summed_blames[i[0][0]].comments += i[1].comments
+			summed_blames[i[0][0]].complexity += i[1].complexity
+
+		return summed_blames

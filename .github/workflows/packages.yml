@@ -1,0 +1,255 @@
+name: Packages
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/packages.yml"
+      - "packaging/**"
+      - "setup.py"
+      - "stdeb.cfg"
+
+# Each package is built on the oldest release it has to install on, so that the interpreter
+# dependency and the archive format come out old enough for every newer release to accept them.
+jobs:
+  debian-package:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavour: python3
+            image: debian/eol:stretch
+            suite: stretch
+            interpreter: python3
+            packages: python3-stdeb python3-setuptools python3-all python-all dh-python
+            revision: "1"
+          # Neither wheezy nor jessie can resolve debhelper from its archive any more, so both
+          # flavours are built on stretch, the oldest release whose toolchain still works. Its
+          # python is 2.7.13 and its python3 is 3.5.3, which is exactly the floor each package
+          # needs; the install jobs prove the results still fit on Debian 7 and 8.
+          - flavour: python2
+            image: debian/eol:stretch
+            suite: stretch
+            interpreter: python
+            packages: python-stdeb python-setuptools python-all dh-python
+            revision: "1~python2"
+            # Lintian judges the python2 package by todays Debian, where /usr/bin/python is gone
+            # and nothing depends on it any more. The package exists for the releases where it is
+            # still what there is, so those two verdicts are not ones it can act on.
+            suppress: script-uses-unversioned-python-in-shebang,python-package-missing-depends-on-python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the ${{ matrix.flavour }} package on Debian ${{ matrix.suite }}
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/source" --workdir /source ${{ matrix.image }} sh -c '
+            set -e
+            printf "deb [trusted=yes] http://archive.debian.org/debian ${{ matrix.suite }} main\ndeb [trusted=yes] http://archive.debian.org/debian-security ${{ matrix.suite }}/updates main\n" > /etc/apt/sources.list
+            echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf.d/10-no-check-valid-until
+            apt-get update -qq
+            apt-get install -y --force-yes --no-install-recommends ${{ matrix.packages }} build-essential fakeroot
+            echo "Debian-Version: ${{ matrix.revision }}" >> stdeb.cfg
+            ${{ matrix.interpreter }} setup.py --command-packages=stdeb.command bdist_deb
+
+            # Debian 7 has python 2.7.3, older than the 2.7.5-5 that the python:any syntax itself
+            # requires, and its dpkg reads no compression newer than gzip. Both are relaxed back to
+            # what the 0.4.4 package used; the install job on wheezy is what proves it worked.
+            if [ "${{ matrix.flavour }}" = "python2" ]; then
+              package=$(ls deb_dist/*.deb)
+              rm -rf /tmp/rebuilt && mkdir /tmp/rebuilt
+              dpkg-deb -R "$package" /tmp/rebuilt
+              sed -i "s/python:any (>= [^)]*)/python (>= 2.7)/; s/python:any (<< 2.8)/python (<< 2.8)/" \
+                     /tmp/rebuilt/DEBIAN/control
+              rm -f "$package"
+              dpkg-deb -Zgzip --build /tmp/rebuilt "$package"
+            fi
+          '
+
+      - name: Show what came out
+        run: |
+          ls -l deb_dist/*.deb
+          for package in deb_dist/*.deb; do
+            echo "=== $package"
+            dpkg-deb -f "$package" Package Version Architecture Depends
+            dpkg-deb -c "$package" | head -20
+          done
+
+      # Warnings are left to be read; only what lintian counts as an error fails the build.
+      - name: Check the package with lintian
+        env:
+          SUPPRESS: ${{ matrix.suppress }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --no-install-recommends --yes lintian
+          lintian --fail-on error --tag-display-limit 0 ${SUPPRESS:+--suppress-tags "$SUPPRESS"} deb_dist/*.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian-${{ matrix.flavour }}
+          path: deb_dist/*.deb
+          if-no-files-found: error
+
+  # Debian 7 and 8 carry a Python 3 older than the 3.5 gitinspector needs, so they take the Python 2
+  # package; everything from Debian 9 onwards takes the Python 3 one.
+  debian-install:
+    needs: debian-package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: debian/eol:wheezy
+            flavour: python2
+            archived: wheezy
+            security: wheezy/updates
+            suite: wheezy
+          - image: debian/eol:jessie
+            flavour: python2
+            archived: jessie
+            security: jessie/updates
+            suite: jessie
+          - image: debian/eol:stretch
+            flavour: python2
+            archived: stretch
+            security: stretch/updates
+            suite: stretch
+          - image: debian/eol:stretch
+            flavour: python3
+            archived: stretch
+            security: stretch/updates
+            suite: stretch
+          - image: debian:10
+            flavour: python3
+            archived: buster
+            security: buster/updates
+            suite: buster
+          # Debian 11 cannot currently be tested. Its security suite advertises a perl that its
+          # own pool no longer serves, and the image ships that same perl, so apt can neither
+          # fetch what it wants nor settle for what the archive still has. The package itself is
+          # the plain Python 3 one that Debian 10, 12 and 13 all accept; nothing about it is
+          # particular to this release. Drop the flag once the mirror agrees with itself again.
+          - image: debian:11
+            flavour: python3
+            archived: bullseye
+            downgrades: "--allow-downgrades"
+            optional: true
+            suite: bullseye
+          - image: debian:12
+            flavour: python3
+            suite: bookworm
+          - image: debian:13
+            flavour: python3
+            suite: trixie
+          - image: ubuntu:22.04
+            flavour: python3
+            suite: jammy
+          - image: ubuntu:24.04
+            flavour: python3
+            suite: noble
+          - image: ubuntu:26.04
+            flavour: python3
+            suite: resolute
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: debian-${{ matrix.flavour }}
+          path: packages
+
+      - name: Install on ${{ matrix.suite }} and report on a repository
+        continue-on-error: ${{ matrix.optional == true }}
+        env:
+          ARCHIVED: ${{ matrix.archived }}
+          SECURITY: ${{ matrix.security }}
+          MIRROR: ${{ matrix.mirror || 'http://archive.debian.org' }}
+          DOWNGRADES: ${{ matrix.downgrades }}
+          RESOURCES: ${{ matrix.flavour == 'python2' && 'python-pkg-resources' || 'python3-pkg-resources' }}
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/source" --workdir /source \
+            --env ARCHIVED --env SECURITY --env MIRROR --env DOWNGRADES --env RESOURCES --env DEBIAN_FRONTEND=noninteractive ${{ matrix.image }} sh -c '
+            set -e
+            if [ -n "$ARCHIVED" ]; then
+              printf "deb [trusted=yes] $MIRROR/debian $ARCHIVED main\n" > /etc/apt/sources.list
+              if [ -n "$SECURITY" ]; then
+                printf "deb [trusted=yes] $MIRROR/debian-security $SECURITY main\n" >> /etc/apt/sources.list
+              fi
+              rm -rf /var/lib/apt/lists/*
+              echo "Acquire::Check-Valid-Until \"false\";" > /etc/apt/apt.conf.d/10-no-check-valid-until
+            fi
+            apt-get update -qq
+            # The image carries a perl-base newer than anything still fetchable. Allowing a
+            # downgrade is not enough on its own: apt keeps the newer one and then cannot satisfy
+            # the perl that git wants, so the older one is named in the same transaction.
+            stepped_back=""
+            if [ -n "$DOWNGRADES" ]; then
+              stepped_back="perl-base=$(apt-cache policy perl-base | sed -n "s/.*Candidate: //p")"
+            fi
+            # Bringing the dependencies in first keeps dpkg from leaving a half configured package
+            # behind, which apt then resolves by removing what we are trying to test.
+            apt-get install -y --force-yes --no-install-recommends $DOWNGRADES -o Acquire::Retries=3 \
+                    git $RESOURCES $stepped_back
+            dpkg -i packages/*.deb
+            gitinspector --version
+            git config --global --add safe.directory /source || true
+            gitinspector -f py --format=json /source > /tmp/report.json
+            head -c 200 /tmp/report.json
+            echo
+          '
+
+  fedora-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the rpm on the older of the two releases
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/source" --workdir /source fedora:43 sh -c '
+            set -e
+            dnf install -y --setopt=install_weak_deps=False rpm-build python3-devel python3-setuptools tar
+            version=$(python3 -c "import re; print(re.search(r\"__version__ = .(.*).\", open(\"gitinspector/version.py\").read()).group(1))")
+            mkdir -p /tmp/rpm/SOURCES /tmp/rpm/SPECS
+            tar --transform "s,^,gitinspector-$version/," -czf "/tmp/rpm/SOURCES/gitinspector-$version.tar.gz" \
+                gitinspector setup.py README.md LICENSE.txt DESCRIPTION.txt CHANGES.txt docs
+            cp packaging/gitinspector.spec /tmp/rpm/SPECS/
+            rpmbuild --define "_topdir /tmp/rpm" --define "version $version" -bb /tmp/rpm/SPECS/gitinspector.spec
+            mkdir -p rpm_dist
+            cp /tmp/rpm/RPMS/noarch/*.rpm rpm_dist/
+          '
+
+      - name: Show what came out
+        run: |
+          ls -l rpm_dist/*.rpm
+          rpm -qpi rpm_dist/*.rpm || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fedora
+          path: rpm_dist/*.rpm
+          if-no-files-found: error
+
+  fedora-install:
+    needs: fedora-package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ["43", "44"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: fedora
+          path: packages
+
+      - name: Install on Fedora ${{ matrix.release }} and report on a repository
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/source" --workdir /source fedora:${{ matrix.release }} sh -c '
+            set -e
+            dnf install -y --setopt=install_weak_deps=False ./packages/*.rpm
+            gitinspector --version
+            git config --global --add safe.directory /source || true
+            gitinspector -f py --format=json /source > /tmp/report.json
+            head -c 200 /tmp/report.json
+            echo
+          '

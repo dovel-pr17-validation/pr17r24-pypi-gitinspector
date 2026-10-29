@@ -1,0 +1,92 @@
+# coding: utf-8
+#
+# Copyright © 2012-2026 Ejwa Hosting AB. All rights reserved.
+#
+# This file is part of gitinspector.
+#
+# gitinspector is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# gitinspector is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with gitinspector. If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function
+from __future__ import unicode_literals
+import textwrap
+from xml.sax.saxutils import escape
+from ..localization import N_
+from .. import extensions, format, terminal
+from .outputable import Outputable, html_card
+
+
+EXTENSIONS_INFO_TEXT = N_("The extensions below were found in the repository history")
+EXTENSIONS_MARKED_TEXT = N_("(extensions used during statistical analysis are marked)")
+
+class ExtensionsOutput(Outputable):
+	@staticmethod
+	def is_marked(extension):
+		if extension in extensions.__extensions__ or "**" in extensions.__extensions__:
+			return True
+
+		return False
+
+	def output_html(self):
+		if extensions.__located_extensions__:
+			chips = "".join("<span class=\"gi-chip{0}\">{1}</span>".format(
+			                " gi-used" if ExtensionsOutput.is_marked(i) else "", escape(i))
+			                for i in sorted(extensions.__located_extensions__))
+
+			print(html_card(_(EXTENSIONS_INFO_TEXT), "<div class=\"gi-chips\">" + chips + "</div>",
+			                _(EXTENSIONS_MARKED_TEXT), pad=True))
+
+	def output_json(self):
+		if extensions.__located_extensions__:
+			message_json = "\t\t\t\"message\": " + format.json_string(_(EXTENSIONS_INFO_TEXT)) + ",\n"
+			used_extensions_json = ""
+			unused_extensions_json = ""
+
+			for i in sorted(extensions.__located_extensions__):
+				if ExtensionsOutput.is_marked(i):
+					used_extensions_json += format.json_string(i) + ", "
+				else:
+					unused_extensions_json += format.json_string(i) + ", "
+
+			used_extensions_json = used_extensions_json[:-2]
+			unused_extensions_json = unused_extensions_json[:-2]
+
+			print(",\n\t\t\"extensions\": {\n" + message_json + "\t\t\t\"used\": [ " + used_extensions_json +
+			      " ],\n\t\t\t\"unused\": [ " + unused_extensions_json + " ]\n" + "\t\t}", end="")
+
+	def output_text(self):
+		if extensions.__located_extensions__:
+			print("\n" + textwrap.fill("{0} {1}:".format(_(EXTENSIONS_INFO_TEXT), _(EXTENSIONS_MARKED_TEXT)),
+			      width=terminal.get_size()[0]))
+
+			for i in sorted(extensions.__located_extensions__):
+				if ExtensionsOutput.is_marked(i):
+					print("[" + terminal.__bold__ + i + terminal.__normal__ + "]", end=" ")
+				else:
+					print (i, end=" ")
+			print("")
+
+	def output_xml(self):
+		if extensions.__located_extensions__:
+			message_xml = "\t\t<message>" + escape(_(EXTENSIONS_INFO_TEXT)) + "</message>\n"
+			used_extensions_xml = ""
+			unused_extensions_xml = ""
+
+			for i in sorted(extensions.__located_extensions__):
+				if ExtensionsOutput.is_marked(i):
+					used_extensions_xml += "\t\t\t<extension>" + escape(i) + "</extension>\n"
+				else:
+					unused_extensions_xml += "\t\t\t<extension>" + escape(i) + "</extension>\n"
+
+			print("\t<extensions>\n" + message_xml + "\t\t<used>\n" + used_extensions_xml + "\t\t</used>\n" +
+			      "\t\t<unused>\n" + unused_extensions_xml + "\t\t</unused>\n" + "\t</extensions>")

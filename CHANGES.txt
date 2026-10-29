@@ -1,0 +1,211 @@
+gitinspector (0.5.1)
+
+	* Groovy source files are analyzed by default and get comment
+	  recognition and metrics.
+	* Dart source files get comment recognition and metrics when asked
+	  for with -f.
+	* Leaving out the last commit of an interval with -x no longer
+	  rewinds the blame to before that commit.
+	* The lines of a first commit inside the interval given with --since
+	  are no longer left out of the blame.
+	* Faster analysis: the blame and the changes are parsed with less
+	  locking, the metrics of each file are measured in parallel and a
+	  commit message is read once however many message rules there are.
+	* An invalid regular expression given with -x is reported before the
+	  analysis starts.
+	* The excluded files, authors, emails and revisions are listed in
+	  order, so the same run always gives the same report.
+
+gitinspector (0.5.0)
+
+	Major release with a new HTML theme, support for multiple repositories
+	and many fixes.
+
+	* Several repositories can be analyzed in one run, merged into a
+	  unified report.
+	* JSON output format.
+	* A responsive HTML theme of our own, with a light and a dark mode, a
+	  default and a terminal look, sortable tables, a search box and
+	  diverging bars, timeline heat maps and file rails in place of the
+	  pie charts. It carries no third party libraries at all.
+	* Authors below one percent of the changes are folded into a single
+	  row in the HTML report until the reader asks to see them.
+	* A report opens in a given theme, mode and minor author setting
+	  straight from the link, through ?theme=, ?mode= and ?minor=
+	  parameters in the address.
+	* New -M/--forcemonths option that shows both monthly and weekly
+	  statistics together with -w.
+	* Go, PHP, Rust, Swift and TypeScript source files are analyzed by
+	  default and get metrics.
+	* Comment recognition for Go, Rust, Robot Framework, Lilypond,
+	  TypeScript, JSX, CSV and TSV files.
+	* A cognitive complexity metric next to the cyclomatic one, charging
+	  a branch for how deeply it is nested rather than counting them all
+	  alike.
+	* "Rows" are now called "lines" throughout the output. The JSON and
+	  XML keys "rows" and "modified_rows" were renamed accordingly.
+	* Dutch, Korean, Portuguese and Russian translations.
+	* A French error message no longer loses the path of the repository
+	  it complains about, and the Chinese metrics output no longer prints
+	  the cyclomatic complexity density with the wrong precision.
+	* The table of changes ends with a total row summing the commits,
+	  insertions and deletions of every author.
+	* Author emails are included in the JSON and HTML output.
+	* The analyzed branch of each repository is named in the output.
+	* Commits on merged branches are no longer lost during analysis.
+	* A commit that only changes whitespace no longer aborts the run
+	  with an AttributeError about a missing timestamp, sha or date.
+	* Authors whose name or email contains a vertical bar are analyzed
+	  instead of aborting the run; the fields of a commit are read
+	  separated by null characters rather than by bars.
+	* Files whose name contains a vertical bar are counted instead of
+	  being left out of the statistics.
+	* A commit whose author is empty is reported under a translated
+	  "No Author" instead of under a blank name.
+	* A terminal encoding that Python has no codec for, such as the
+	  cp65001 of a Windows console, is named in a warning and replaced
+	  by UTF-8 instead of ending the run with a LookupError.
+	* A git executable that cannot be started is reported in a sentence
+	  instead of a traceback. --version and --help still answer without
+	  one.
+	* The test suite runs on every supported Python version, and on
+	  Windows and macOS, through GitHub Actions.
+	* --version and --help are answered outside a git repository again,
+	  instead of complaining that the current directory is not one.
+	* An argument that names a missing directory, or a file rather than a
+	  directory, is reported as an error instead of a traceback.
+	* Runs on Python 3 again and keeps running on Python 2.7.
+	* No more line buffering warnings from Python 3.8 and later.
+	* Files without an extension are blamed when asked for with * or **.
+	* Blamed lines are attributed to the newest name of an author, which
+	  earlier depended on the timing of the analysis threads.
+	* Tests that analyze real repositories and check the reports against
+	  statistics gathered straight from git.
+	* Names and paths with characters outside ASCII no longer crash the
+	  analysis or the output.
+	* A test harness that runs the analysis on generated repositories.
+	* Example reports are published on GitHub Pages.
+	* A Dockerfile that analyzes a repository mounted on /repo, for those
+	  who would rather not install gitinspector.
+	* Native executables for Linux, macOS and Windows, carrying the
+	  interpreter, the templates and the translations, for those who
+	  would rather not install Python.
+	* Running out of memory while starting git no longer aborts the
+	  analysis with an exception: gitinspector waits for its other git
+	  processes to finish, continues with fewer of them and only gives up,
+	  with a clear message, when git cannot be started at all.
+	* An error inside an analysis thread, such as an invalid author or
+	  email exclusion pattern, is reported instead of hanging gitinspector.
+
+gitinspector (0.4.4)
+
+	Minor release with some minor fixes.
+
+	* Better support for additional terminals.
+	* -f "**" now properly ignores binary files.
+
+gitinspector (0.4.3)
+
+	Minor release with updated language locales.
+
+
+gitinspector (0.4.2)
+
+	Minor release with many small, but great improvements.
+
+	* The changes module is now threaded and uses all available cores. This
+	  results in a significant speed up.
+	* Printed extensions are now alphabetically sorted.
+	* Ability to exclude commits with certain comments from statistics.
+	* Support for C# code and comments.
+	* Extensionless files can now be included in statistics.
+	* Ability to include all file extensions by specifying "**".
+	* Spanish translation.
+
+
+gitinspector (0.4.1)
+
+	Maintenance release fixing several issues found in the previous version.
+
+
+gitinspector (0.4.0)
+
+	Major update with many fixes and new features.
+
+	* Support for remote repositories (git://, http(s)://, ssh://).
+	* Code stability and age shown in blame output.
+	* Support for cyclomatic complexity and cyclomatic complexity density
+	  metrics.
+	* Ability to exclude commit hashes (revisions) from statistics.
+	* Improved HTML output.
+	* Support for ADA, OCaml and Haskell comments.
+	* Improved localization support for languages with multi-column
+	  characters.
+	* Many (big and small) bug fixes.
+	* French translation.
+	* German translation.
+
+
+gitinspector (0.3.2)
+
+	Maintenance release that adds several new features and bug fixes.
+
+	* Better handling of terminals that have no encoding configured.
+	* File extensions .cc and .hh scanned by default.
+	* Support for bare repositories.
+	* Support for comments in .xhtml, .jspx, and .scala files.
+	* The ability to filter out statistics from specific authors or
+	  emails.
+	* The flag --since now behaves correctly.
+	* Italian translation.
+	* Polish translation.
+
+
+gitinspector (0.3.1)
+
+	Minor release which adds support for gravatars.
+
+	* A few minor bug fixes.
+	* Chinese translation.
+	* Support for gravatars in the HTML and XML outputs.
+	* Improved responsibilities section in the HTML output.
+	* Debian package now properly depends on git.
+
+
+gitinspector (0.3.0)
+
+	This is a major release with many new features.
+
+	* Support for comments in LaTex (.tex) and PHP files.
+	* Many bugfixes.
+	* Localization support (English and Swedish for now).
+	* Support for setting gitinspector options via git-config.
+	* Support for regular expressions in conjunction with -x/--exclude.
+	* New output format; "htmlembedded".
+	* Support for Python packaging via setuptools.
+	* Improved HTML output with new JQuery and flot versions.
+
+
+gitinspector (0.2.2)
+
+	This is a maintenance release that fixes several bugs; many related to
+	character encoding. This version also adds table sorting to the HTML
+	output.
+
+
+gitinspector (0.2.1)
+
+	Maintenance release that fixes compatibility with Python 3 and
+	introduces the --since and --until interval flags.
+
+
+gitinspector (0.2.0)
+
+	This release includes several bug fixes and introduces HTML and XML
+	output formats.
+
+
+gitinspector (0.1.0)
+
+	First public release. While incomplete, this release fulfills the most
+	important feature requirements that were originally outlined.

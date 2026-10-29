@@ -1,0 +1,435 @@
+# Copyright © 2012-2026 Ejwa Hosting AB. All rights reserved.
+#
+# This file is part of gitinspector.
+#
+# gitinspector is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# gitinspector is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with gitinspector. If not, see <http://www.gnu.org/licenses/>.
+#
+# Yannick Moy <yannick.moy@gmail.com>, 2014-2015
+msgid ""
+msgstr ""
+"Project-Id-Version: gitinspector 0.5.2dev\n"
+"Report-Msgid-Bugs-To: gitinspector@ejwa.se\n"
+"POT-Creation-Date: 2026-09-06 18:42+0200\n"
+"PO-Revision-Date: 2015-10-25 21:56+0100\n"
+"Last-Translator: Yannick Moy <yannick.moy@gmail.com>\n"
+"Language-Team: French <>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#, no-python-format
+msgid "% in comments"
+msgstr "% en commentaires"
+
+#, no-python-format
+msgid "% of changes"
+msgstr "% de modifications"
+
+#, no-python-format
+msgid "% of total"
+msgstr "% du total"
+
+#, python-brace-format
+msgid "'{0}' in {1}"
+msgstr "'{0}' dans {1}"
+
+msgid "(extensions used during statistical analysis are marked)"
+msgstr "(les extensions utilisées durant l'analyse statistique sont marquées)"
+
+msgid "Age"
+msgstr "Âge"
+
+msgid "Age, months"
+msgstr "Âge, mois"
+
+msgid "Age, weeks"
+msgstr "Âge, semaines"
+
+msgid "Author"
+msgstr "Auteur"
+
+msgid "Authors"
+msgstr "Auteurs"
+
+msgid "Below are the number of lines from each author that have survived and are still intact in the current revision"
+msgstr "Le nombre de lignes par auteur encore présentes et intactes dans la version courante est reporté ci-dessous"
+
+#, python-brace-format
+msgid "Checking how many lines belong to each author (2 of 2): {0:.0f}%"
+msgstr "Contrôle du nombre de lignes appartenant à chaque auteur (2 sur 2) : {0:.0f}%"
+
+msgid "Commits"
+msgstr "Soumissions"
+
+msgid "Complexity"
+msgstr "Complexité"
+
+msgid ""
+"Copyright © 2012-2026 Ejwa Hosting AB. All rights reserved.\n"
+"License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is NO WARRANTY, to the extent permitted by law.\n"
+"\n"
+"Written by Adam Waldenberg."
+msgstr ""
+"Copyright © 2012-2026 Ejwa Hosting AB. Tous droits réservés.\n"
+"Licence GPLv3+: GNU GPL version 3 ou ultérieure <http://gnu.org/licenses/gpl.html>.\n"
+"Le présent logiciel est un logiciel libre: you pouvez le modifier et le redistributer librement.\n"
+"Il n'y a AUCUNE GARANTIE, dans les limites autorisées par la loi.\n"
+"\n"
+"Écrit par Adam Waldenberg."
+
+msgid "Dark"
+msgstr "Sombre"
+
+msgid "Default"
+msgstr "Défaut"
+
+msgid "Deletions"
+msgstr "Suppressions"
+
+#, python-format
+msgid "Error processing git repository at \"%s\"."
+msgstr "Erreur pendant l'analyse du dépôt git \"%s\"."
+
+#, python-brace-format
+msgid "Fetching and calculating primary statistics (1 of 2): {0:.0f}%"
+msgstr "Récupération et calcul des statistiques principales (1 sur 2) : {0:.0f}%"
+
+msgid "Files"
+msgstr "Fichiers"
+
+msgid "HTML output not yet supported in"
+msgstr "Sortie HTML pas encore prise en charge pour"
+
+msgid "Insertions"
+msgstr "Insertions"
+
+msgid "JSON output not yet supported in"
+msgstr "Sortie JSON pas encore prise en charge pour"
+
+msgid "Light"
+msgstr "Clair"
+
+msgid "Lines"
+msgstr "Lignes"
+
+msgid "Minor Authors"
+msgstr "Auteurs mineurs"
+
+msgid "Modified Lines:"
+msgstr "Lignes modifiées:"
+
+msgid "No Author"
+msgstr "Aucun auteur"
+
+msgid "No commited files with the specified extensions were found"
+msgstr "Aucun fichier soumis avec l'extension spécifiée n'a été trouvé"
+
+msgid "No metrics violations were found in the repository"
+msgstr "Aucune violation des métriques n'a été constatée dans le dépôt"
+
+#, python-brace-format
+msgid "Repository statistics for '{0}'"
+msgstr "Statistiques du dépôt '{0}'"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Show minor authors"
+msgstr ""
+
+msgid "Stability"
+msgstr "Stabilité"
+
+#, python-brace-format
+msgid "Statistical information for the repositories '{0}' was gathered on {1}."
+msgstr "Les informations statistiques pour les dépôts '{0}' ont été extraites le {1}."
+
+#, python-brace-format
+msgid "Statistical information for the repository '{0}' was gathered on {1}."
+msgstr "Les informations statistiques pour le dépôt '{0}' ont été extraites le {1}."
+
+msgid "Terminal"
+msgstr "Terminal"
+
+msgid "Text output not yet supported in"
+msgstr "Sortie textuelle pas encore prise en charge pour"
+
+#, python-brace-format
+msgid "The analyzed branch was '{0}'."
+msgstr "La branche analysée était '{0}'."
+
+#, python-brace-format
+msgid "The analyzed branches were {0}."
+msgstr "Les branches analysées étaient {0}."
+
+msgid "The authors with the following emails were excluded from the statistics due to the specified exclusion patterns"
+msgstr "Les auteurs avec les adresses e-mail suivantes ont été exclus des statistiques en raison des filtres d'exclusion spécifiés"
+
+msgid "The extensions below were found in the repository history"
+msgstr "Les extensions suivantes ont été trouvées dans l'historique du dépôt"
+
+msgid "The following authors were excluded from the statistics due to the specified exclusion patterns"
+msgstr "Les auteurs suivants ont été exclus des statistiques en raison des filtres d'exclusion spécifiés"
+
+msgid "The following commit revisions were excluded from the statistics due to the specified exclusion patterns"
+msgstr "Les soumissions suivantes ont été exclues des statistiques en raison des filtres d'exclusion spécifiés"
+
+msgid "The following files are suspiciously big (in order of severity)"
+msgstr "Les fichiers suivants sont étrangement gros (par ordre d'importance)"
+
+msgid "The following files have an elevated cognitive complexity (in order of severity)"
+msgstr "Les fichiers suivants ont une complexité cognitive étrangement élevée (par ordre d'importance)"
+
+msgid "The following files have an elevated cyclomatic complexity (in order of severity)"
+msgstr "Les fichiers suivants ont une complexité cyclomatique étrangement élevée (par ordre d'importance)"
+
+msgid "The following files have an elevated cyclomatic complexity density (in order of severity)"
+msgstr "Les fichiers suivants ont une densité de complexité cyclomatique étrangement élevée (par ordre d'importance)"
+
+msgid "The following files were excluded from the statistics due to the specified exclusion patterns"
+msgstr "Les fichiers suivants ont été exclus des statistiques en raison des filtres d'exclusion spécifiés"
+
+msgid "The following historical commit information, by author, was found in the repository"
+msgstr "Les informations suivantes, par auteur, ont été extraites de l'historique de soumission du dépôt"
+
+msgid "The following monthly history timeline has been gathered from the repository"
+msgstr "La chronologie mensuelle suivante a été extraite du dépôt"
+
+msgid "The following responsibilities, by author, were found in the current revision of the repository (comments are excluded from the line count, if possible)"
+msgstr "Les responsabilités suivantes, par auteur, ont été extraites de la version courante du dépôt (les commentaires sont exclus du compte des lignes, quand c'est possible)"
+
+msgid "The following weekly history timeline has been gathered from the repository"
+msgstr "La chronologie hebdomadaire suivante a été extraite du dépôt"
+
+msgid "The given option argument is not a valid boolean."
+msgstr "L'option passée en argument n'est pas un booléen valide."
+
+msgid "revision {0} was not found in {1}."
+msgstr "la révision {0} est introuvable dans {1}."
+
+msgid "branch {0} was not found in {1}."
+msgstr "la branche {0} est introuvable dans {1}."
+
+msgid "revision {0} is not on branch {1} of {2}."
+msgstr "la révision {0} n'est pas sur la branche {1} de {2}."
+
+msgid "the --since bound lies after the --until bound."
+msgstr "la borne de --since est postérieure à celle de --until."
+
+msgid "The git executable could not be started. gitinspector needs it in the PATH to run."
+msgstr "L'exécutable git n'a pas pu être démarré. gitinspector en a besoin dans le PATH."
+
+#, python-brace-format
+msgid "The output has been generated by {0} {1}. The statistical analysis tool for git repositories."
+msgstr "Cette sortie a été générée par {0} {1}. L'outil d'analyse statistique pour les dépôts git."
+
+msgid "Toggle light and dark"
+msgstr "Basculer entre clair et sombre"
+
+msgid "Total"
+msgstr "Total"
+
+#, python-brace-format
+msgid "Try `{0} --help' for more information."
+msgstr "Entrez `{0} --help' pour plus d'information."
+
+msgid "Unable to determine absolute path of git repository."
+msgstr "Impossible de déterminer le chemin absolu du dépôt git."
+
+msgid "Unable to start git: the system is out of memory or cannot create more processes."
+msgstr "Impossible de démarrer git : le système manque de mémoire ou ne peut pas créer d'autres processus."
+
+#, python-brace-format
+msgid ""
+"Usage: {0} [OPTION]... [REPOSITORY]...\n"
+"List information about the repository in REPOSITORY. If no repository is\n"
+"specified, the current directory is used. If multiple repositories are\n"
+"given, information will be merged into a unified statistical report. Give\n"
+"REPOSITORY:BRANCH to analyze a branch other than the checked out one; it is\n"
+"read as it is and never checked out.\n"
+"\n"
+"Mandatory arguments to long options are mandatory for short options too.\n"
+"Boolean arguments can only be given to long options.\n"
+"  -c, --complexity[=BOOL]        show the average cognitive complexity per\n"
+"                                   author in the blame analysis\n"
+"  -f, --file-types=EXTENSIONS    a comma separated list of file extensions to\n"
+"                                   include when computing statistics. The\n"
+"                                   default extensions used are:\n"
+"                                   {1}\n"
+"                                   Specifying * includes files with no\n"
+"                                   extension, while ** includes all files\n"
+"  -F, --format=FORMAT            define in which format output should be\n"
+"                                   generated; the default format is 'text' and\n"
+"                                   the available formats are:\n"
+"                                   {2}\n"
+"      --grading[=BOOL]           show statistics and information in a way that\n"
+"                                   is formatted for grading of student\n"
+"                                   projects; this is the same as supplying the\n"
+"                                   options -cHlmrTw\n"
+"  -H, --hard[=BOOL]              track lines and look for duplicates harder;\n"
+"                                   this can be quite slow with big repositories\n"
+"  -l, --list-file-types[=BOOL]   list all the file extensions available in the\n"
+"                                   current branch of the repository\n"
+"  -L, --localize-output[=BOOL]   localize the generated output to the selected\n"
+"                                   system language if a translation is\n"
+"                                   available\n"
+"  -m, --metrics[=BOOL]           include checks for certain metrics during the\n"
+"                                   analysis of commits\n"
+"  -M, --forcemonths[=BOOL]       show statistics in months as well as in weeks\n"
+"                                   when -w is used\n"
+"  -r, --responsibilities[=BOOL]  show which files the different authors seem\n"
+"                                   most responsible for\n"
+"      --since=DATE|rev:REV       only show statistics for commits more recent\n"
+"                                   than a specific date, or from a specific\n"
+"                                   revision on\n"
+"  -T, --timeline[=BOOL]          show commit timeline, including author names\n"
+"      --until=DATE|rev:REV       only show statistics for commits made up to\n"
+"                                   a specific date or revision\n"
+"  -w, --weeks[=BOOL]             show all statistical information in weeks\n"
+"                                   instead of in months\n"
+"  -x, --exclude=PATTERN          an exclusion pattern describing the file\n"
+"                                   paths, revisions, revisions with certain\n"
+"                                   commit messages, author names or author\n"
+"                                   emails that should be excluded from the\n"
+"                                   statistics; can be specified multiple times\n"
+"  -h, --help                     display this help and exit\n"
+"      --version                  output version information and exit\n"
+"\n"
+"gitinspector will filter statistics to only include commits that modify,\n"
+"add or remove one of the specified extensions, see -f or --file-types for\n"
+"more information.\n"
+"\n"
+"gitinspector requires that the git executable is available in your PATH.\n"
+"Report gitinspector bugs to gitinspector@ejwa.se."
+msgstr ""
+"Utilisation: {0} [OPTION]... [RÉPERTOIRE]...\n"
+"Génère les informations sur le dépôt dans RÉPERTOIRE. Si aucun répertoire\n"
+"n'est spécifié, le répertoire courant est utilisé. Si plusieurs répertoires\n"
+"sont spécifiés, leurs statistiques sont fusionnées dans un rapport\n"
+"unique. Indiquez RÉPERTOIRE:BRANCHE pour analyser une branche autre que la\n"
+"branche courante ; elle est lue telle quelle et n'est jamais activée.\n"
+"\n"
+"Les arguments obligatoires pour les options longues sont également obligatoires\n"
+"pour les options courtes.\n"
+"Les argument booléens peuvent seulement être passés aux options longues.\n"
+"  -c, --complexity[=BOOL]        affiche la complexité cognitive moyenne par\n"
+"                                   auteur dans l'analyse de blame\n"
+"  -f, --file-types=EXTENSIONS    liste séparée par des virgules des extensions\n"
+"                                   de fichiers à considérer pour calculer les\n"
+"                                   statistiques. Les extensions par défaut\n"
+"                                   sont:\n"
+"                                   {1}\n"
+"                                   Utiliser * pour inclure les fichiers\n"
+"                                   sans extension, et ** pour inclure tous\n"
+"                                   les fichiers\n"
+"  -F, --format=FORMAT            définit le format de sortie à générer ;\n"
+"                                   le format par défaut est 'text' et\n"
+"                                   les formats disponibles sont:\n"
+"                                   {2}\n"
+"      --grading[=BOOL]           montre les statistiques et les informations\n"
+"                                   sous un format adapté pour noter des projets\n"
+"                                   étudiants ; équivalent aux options -cHlmrTw\n"
+"  -H, --hard[=BOOL]              suit les lignes et cherche les duplications de\n"
+"                                   manière plus approfondie ; cela peut être\n"
+"                                   assez long pour les dépôts très gros\n"
+"  -l, --list-file-types[=BOOL]   énumère les extensions de fichiers disponibles\n"
+"                                   dans la branche courante du dépôt\n"
+"  -L, --localize-output[=BOOL]   traduit la sortie générée dans la langue\n"
+"                                   système sélectionnée, si une traduction est\n"
+"                                   disponible\n"
+"  -m, --metrics[=BOOL]           inclut des contrôles pour certaines métriques\n"
+"                                   durant l'analyse des soumissions\n"
+"  -M, --forcemonths[=BOOL]       affiche les statistiques en mois en plus\n"
+"                                   des semaines lorsque -w est utilisé\n"
+"  -r, --responsibilities[=BOOL]  montre de quels fichiers les différents auteurs\n"
+"                                    semblent être responsables\n"
+"      --since=DATE|rev:REV       montre les statistiques seulement pour les\n"
+"                                   soumissions plus récentes qu'une date\n"
+"                                   spécifiée, ou à partir d'une révision\n"
+"                                   spécifiée\n"
+"  -T, --timeline[=BOOL]          montre une chronologie des soumissions,\n"
+"                                   incluant le nom des auteurs\n"
+"      --until=DATE|rev:REV       montre les statistiques seulement pour les\n"
+"                                   soumissions effectuées jusqu'à une date\n"
+"                                   ou une révision spécifiée\n"
+"  -w, --weeks[=BOOL]             montre toutes les informations statistiques en\n"
+"                                    semaines plutôt qu'en mois\n"
+"  -x, --exclude=PATTERN          un filtre d'exclusion pour les noms de fichiers,\n"
+"                                    soumissions, soumissions avec certains\n"
+"                                    messages de soumission, noms d'auteurs ou\n"
+"                                    e-mails à exclure des statistiques ;\n"
+"                                    peut être spécifié plusieurs fois\n"
+"  -h, --help                     affiche ce message d'aide et quitte\n"
+"                                   le programme\n"
+"      --version                  affiche les informations de version et quitte\n"
+"                                   le programme\n"
+"\n"
+"gitinspector filtre les statistiques pour n'inclure que les soumissions qui \n"
+"modifient, ajoutent ou retirent un fichier avec une des extensions spécifiées, \n"
+"voir -f ou --file-type pour plus d'information.\n"
+"\n"
+"gitinspector nécessite que l'exécutable git soit trouvé dans le PATH.\n"
+"Signalez les bugs dans gitinspector à gitinspector@ejwa.se."
+
+#, python-brace-format
+msgid "WARNING: The terminal encoding '{0}' is unknown to Python, so UTF-8 is used instead. The encoding can be configured with the environment variable 'PYTHONIOENCODING'."
+msgstr "ATTENTION: L'encodage du terminal '{0}' est inconnu de Python, UTF-8 est donc utilisé à la place. L'encodage peut être configuré avec la variable d'environnement 'PYTHONIOENCODING'."
+
+msgid "WARNING: The terminal encoding is not correctly configured. gitinspector might malfunction. The encoding can be configured with the environment variable 'PYTHONIOENCODING'."
+msgstr "ATTENTION: L'encodage du terminal n'est pas configuré correctement. gitinspector pourrait ne pas fonctionner correctement. L'encodage peut être configuré avec la variable d'environnement 'PYTHONIOENCODING'."
+
+msgid "XML output not yet supported in"
+msgstr "Sortie XML pas encore prise en charge pour"
+
+#, python-brace-format
+msgid "gitinspector requires at least Python 2.6 to run (version {0} was found)."
+msgstr "gitinspector nécessite Python 2.6 ou une version ultérieure (la version trouvée est {0})."
+
+msgid "invalid regular expression specified"
+msgstr "l'expression régulière spécifiée est invalide"
+
+msgid "is mostly responsible for"
+msgstr "est principalement responsable de"
+
+msgid "repository statistics"
+msgstr "statistiques du dépôt"
+
+msgid "specified output format not supported."
+msgstr "format de sortie spécifié non pris en charge."
+
+#, python-brace-format
+msgid "{0} ({1:.3f} in cyclomatic complexity density)"
+msgstr "{0} ({1:.3f} en densité de complexité cyclomatique)"
+
+#, python-brace-format
+msgid "{0} ({1} estimated lines of code)"
+msgstr "{0} ({1} lignes de code estimées)"
+
+#, python-brace-format
+msgid "{0} ({1} in cognitive complexity)"
+msgstr "{0} ({1} en complexité cognitive)"
+
+#, python-brace-format
+msgid "{0} ({1} in cyclomatic complexity)"
+msgstr "{0} ({1} en complexité cyclomatique)"
+
+#~ msgid "Hide minor authors"
+#~ msgstr "Masquer les auteurs mineurs"
+
+#~ msgid "Hide lines with minor work"
+#~ msgstr "Masquer les lignes avec le moins de travail"

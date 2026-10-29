@@ -1,0 +1,77 @@
+name: Binaries
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/binaries.yml"
+      - "packaging/pyinstaller.spec"
+      - "packaging/verify-binary.sh"
+
+# One executable per platform for the people who would rather not install Python at all. Each is
+# built on the runner it targets, since PyInstaller cannot cross compile, and carries the html
+# templates, the compiled translations and the language definitions beside the interpreter it
+# bundles.
+jobs:
+  binary:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The oldest image still offered, so that the binary asks for the oldest glibc it can.
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+          - os: ubuntu-22.04-arm
+            platform: linux-aarch64
+          # macos-15-intel is the last x86_64 image Actions offers; when it goes, so does the
+          # Intel binary.
+          - os: macos-15-intel
+            platform: macos-x86_64
+          - os: macos-15
+            platform: macos-arm64
+          - os: windows-2022
+            platform: windows-x86_64
+            suffix: .exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyInstaller
+        run: python -m pip install pyinstaller
+
+      - name: Build the executable
+        shell: bash
+        run: |
+          pyinstaller --clean --noconfirm packaging/pyinstaller.spec
+          version=$(python -c "from gitinspector.version import __version__; print(__version__)")
+          mv "dist/gitinspector${{ matrix.suffix }}" "dist/gitinspector-$version-${{ matrix.platform }}${{ matrix.suffix }}"
+
+      - name: Check the executable against a repository it clones itself
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+          LANG: C
+        run: sh packaging/verify-binary.sh "$(ls dist/gitinspector-*)"
+
+      # An executable is only worth building if it runs where no Python is installed, so the linux
+      # ones go through the same checks again in a bare image that carries neither an interpreter
+      # nor the repository under test.
+      - name: Check it where no Python is installed
+        if: startsWith(matrix.platform, 'linux')
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/source" --workdir /source debian:12 sh -c '
+            set -e
+            apt-get update -qq
+            apt-get install -y --no-install-recommends git ca-certificates > /dev/null
+            sh packaging/verify-binary.sh "$(ls dist/gitinspector-*)"
+          '
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.platform }}
+          path: dist/gitinspector-*
+          if-no-files-found: error

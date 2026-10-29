@@ -1,0 +1,79 @@
+# coding: utf-8
+#
+# Copyright © 2013-2026 Ejwa Hosting AB. All rights reserved.
+#
+# This file is part of gitinspector.
+#
+# gitinspector is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# gitinspector is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with gitinspector. If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
+import os
+
+try:
+	import unittest2 as unittest
+except ImportError:
+	import unittest
+
+import gitinspector.comment
+
+def __test_extension__(commented_file, extension):
+	base = os.path.dirname(os.path.realpath(__file__))
+	commented = open(base + commented_file, "rb")
+	lines = commented.readlines()
+	commented.close()
+
+	is_inside_comment = False
+	comment_counter = 0
+	for i in lines:
+		i = i.decode("utf-8", "replace")
+		(_, is_inside_comment) = gitinspector.comment.handle_comment_block(is_inside_comment, extension, i)
+		if is_inside_comment or gitinspector.comment.is_comment(extension, i):
+			comment_counter += 1
+
+	return comment_counter
+
+class TexFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.tex", "tex")
+		self.assertEqual(comment_counter, 30)
+
+class CppFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.cpp", "cpp")
+		self.assertEqual(comment_counter, 25)
+
+class RustFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.rs", "rs")
+		self.assertEqual(comment_counter, 16)
+
+class GroovyFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.groovy", "groovy")
+		self.assertEqual(comment_counter, 14)
+
+class DartFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.dart", "dart")
+		self.assertEqual(comment_counter, 14)
+
+class CsvFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.csv", "csv")
+		self.assertEqual(comment_counter, 5)
+
+class TsvFileTest(unittest.TestCase):
+	def test(self):
+		comment_counter = __test_extension__("/resources/commented_file.tsv", "tsv")
+		self.assertEqual(comment_counter, 4)

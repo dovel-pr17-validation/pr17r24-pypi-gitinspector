@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default" data-mode="light" data-minor="hidden">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		{fonts}
+		<style>{stylesheet}</style>
+	</head>
+	<body>
+		<div class="gi-page">
+			<header class="gi-header">
+				<div class="gi-brand">
+					<a href="https://github.com/ejwa/gitinspector"><img src="data:image/png;base64,{logo}" alt="gitinspector" /></a>
+					<div class="gi-ident">
+						<div class="gi-eyebrow">gitinspector {version} · {statistics_text}</div>
+						<h1 class="gi-title">{repo_title}</h1>
+						<div class="gi-meta">{repo_text}</div>
+					</div>
+				</div>
+				<div class="gi-controls">
+					<div class="gi-seg">
+						<button type="button" data-gi-theme="default" aria-pressed="true">{default_text}</button>
+						<button type="button" data-gi-theme="terminal" aria-pressed="false">{terminal_text}</button>
+					</div>
+					<button type="button" class="gi-btn" data-gi-mode-toggle="true" title="{mode_text}">
+						<span class="gi-moon"></span>
+						<span data-gi-mode-label="true" data-gi-dark-text="{dark_text}" data-gi-light-text="{light_text}">{dark_text}</span>
+					</button>
+					<button type="button" class="gi-btn" data-gi-minor-toggle="true" aria-pressed="false">
+						<span class="gi-tick">✓</span>{minor_text}
+					</button>
+					<div class="gi-search">
+						<select data-gi-scope="true" aria-label="{search_text}">
+							<option value="authors">{authors_text}</option>
+							<option value="files">{files_text}</option>
+						</select>
+						<input type="search" data-gi-query="true" placeholder="{search_text}" />
+					</div>
+				</div>
+			</header>
